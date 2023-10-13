@@ -1,0 +1,33 @@
+{
+  "name": "washmen",
+  "version": "1.0.0",
+  "description": "URL conversion service",
+  "main": "src/index.js",
+  "license": "MIT",
+  "private": true,
+  "repository": {
+    "url": "https://github.com/sameernair1993/washmen-url-converter"
+  },
+  "scripts": {
+    "start": "nodemon src/index.js"
+  },
+  "dependencies": {
+    "compression": "^1.7.4",
+    "cors": "^2.8.5",
+    "dotenv": "^16.3.1",
+    "eslint": "^7.32.0 || ^8.2.0",
+    "express": "^4.18.2",
+    "helmet": "^7.0.0",
+    "is-html": "^3.0.0",
+    "nodemon": "^3.0.1",
+    "pjson": "^1.0.9",
+    "swagger": "^0.7.5",
+    "swagger-jsdoc": "^6.2.8",
+    "swagger-ui-express": "^5.0.0",
+    "winston": "^3.11.0"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb-base": "^15.0.0",
+    "eslint-plugin-import": "^2.25.2"
+  }
+}
