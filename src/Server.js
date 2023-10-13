@@ -2,6 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const helmet = require("helmet");
 const compression = require("compression");
+const hpp = require("hpp");
 const swaggerJsdoc = require("swagger-jsdoc");
 const swaggerUi = require("swagger-ui-express");
 const logger = require("./logger/Logger");
@@ -20,25 +21,17 @@ class Server {
   }
 
   init() {
+    this.initHpp();
     this.initCompression();
     this.initHelmet();
     this.initCors();
     this.initJsonParser();
     this.initSwagger();
-    this.disableServerInfo();
-    this.addHeaders();
     this.addRoutes();
   }
 
-  addHeaders() {
-    this.app.use((req, res, next) => {
-      res.setHeader('Content-Security-Policy', "default-src 'self' washmen.com washmen");
-      next();
-    });
-  }
-
-  disableServerInfo() {
-    this.app.disable("x-powered-by");
+  initHpp() {
+    this.app.use(hpp());
   }
 
   initJsonParser() {
