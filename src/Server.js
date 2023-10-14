@@ -8,6 +8,7 @@ const swaggerUi = require("swagger-ui-express");
 const logger = require("./logger/Logger");
 const router = require("./router");
 const swaggerOptions = require("./config/swagger");
+const Database = require("./database/Database");
 
 
 class Server {
@@ -20,14 +21,20 @@ class Server {
     this.config = config;
   }
 
-  init() {
+  async init() {
     this.initHpp();
     this.initCompression();
     this.initHelmet();
     this.initCors();
     this.initJsonParser();
     this.initSwagger();
+    this.addErrorHandler();
     this.addRoutes();
+    await this.connectToDatabase();
+  }
+
+  async connectToDatabase() {
+    await Database.connect();
   }
 
   initHpp() {
@@ -36,6 +43,7 @@ class Server {
 
   initJsonParser() {
     this.app.use(express.json());
+    this.app.use(express.urlencoded({ extended: true }));
   }
 
   initHelmet() {
@@ -53,6 +61,15 @@ class Server {
   initSwagger() {
     const swaggerSpec = swaggerJsdoc(swaggerOptions);
     this.app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+  }
+
+  addErrorHandler() {
+    this.app.use((error, req, res, next) => {
+      logger.log("error", error);
+      res.status(422).json({
+        message : "Invalid request"
+      });
+    });
   }
 
   addRoutes() {

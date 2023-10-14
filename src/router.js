@@ -1,9 +1,11 @@
-const { Router } = require("express");
+const express = require("express");
 const pjson = require("pjson");
 const logger = require("./logger/Logger");
+const converterRouter = require("./modules/urlConverter/converter.routes");
 
-const router = Router();
+const router = express.Router();
 
+router.use("/convert", converterRouter);
 /**
  * @swagger
  * tags:
