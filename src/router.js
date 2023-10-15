@@ -1,7 +1,7 @@
 const express = require("express");
 const pjson = require("pjson");
 const logger = require("./logger/Logger");
-const converterRouter = require("./modules/urlConverter/converter.routes");
+const converterRouter = require("./modules/converter/converter.routes");
 
 const router = express.Router();
 
