@@ -59,8 +59,11 @@ class Server {
   }
 
   initSwagger() {
-    const swaggerSpec = swaggerJsdoc(swaggerOptions);
-    this.app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    const { env } = this.config;
+    if (env !== "prod") {
+      const swaggerSpec = swaggerJsdoc(swaggerOptions);
+      this.app.use("/api/docs", swaggerUi.serve, swaggerUi.setup(swaggerSpec));
+    }
   }
 
   addErrorHandler() {

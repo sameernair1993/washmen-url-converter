@@ -5,4 +5,6 @@ const startup = require("./startup");
 const server = new Server(config);
 server.init();
 server.run();
-startup();
+(async () => {
+  await startup();
+})();
