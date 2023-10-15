@@ -1,14 +1,17 @@
+const { URL } = require("url");
+
 const isWashmenWebUrl = (url) => {
   const webUrlPattern = /^https:\/\/www.washmen.*/;
   return webUrlPattern.test(url);
 };
 
-const sanitizeDeeplink = (deeplink) => {
+const isWashmenDeepLink = (url) => {
   const deepLinkPattern = /^washmen:\/\/\?(\w+=[^&]+&)+\w+=[^&]+$/;
+  return deepLinkPattern.test(url);
+};
+
+const sanitizeDeeplink = (deeplink) => {
   const htmlPattern = /<[^>]*>/;
-  if (!deepLinkPattern.test(deeplink)) {
-    return null; // Not a valid deep link
-  }
   if (htmlPattern.test(deeplink)) {
     return null;
   }
@@ -30,11 +33,14 @@ const sanitizeDeeplink = (deeplink) => {
       sanitizedParams[sanitizedKey] = sanitizedValue;
     }
   }
-
   return sanitizedParams;
 };
+
+const parseUrl = (url) => new URL(url);
 
 module.exports = {
   isWashmenWebUrl,
   sanitizeDeeplink,
+  isWashmenDeepLink,
+  parseUrl,
 };

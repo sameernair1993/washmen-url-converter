@@ -1,6 +1,7 @@
 const converterService = require("./converter.service");
 const { Response, SuccessResponse, ErrorResponse } = require("../../entities/response");
 const { statusCodes } = require("../../libs/constants");
+const logger = require("../../logger/Logger");
 
 class ConverterController {
   static getInstance() {
@@ -17,8 +18,8 @@ class ConverterController {
       const responseObj = new SuccessResponse({ url: deeplink }, statusCodes.CREATED);
       Response.send(res, responseObj);
     } catch (error) {
-      const errorResponse = new ErrorResponse({ error: error?.message ?? error }, statusCodes.INTERNAL_SERVER_ERROR);
-      Response.send(res, errorResponse);
+      logger.log("error", error);
+      Response.send(res, error);
     }
   }
 
@@ -29,8 +30,8 @@ class ConverterController {
       const responseObj = new SuccessResponse({ url: weblink }, statusCodes.CREATED);
       Response.send(res, responseObj);
     } catch (error) {
-      const errorResponse = new ErrorResponse({ error: error?.message ?? error }, statusCodes.INTERNAL_SERVER_ERROR);
-      Response.send(res, errorResponse);
+      logger.log("error", error);
+      Response.send(res, error);
     }
   }
 };

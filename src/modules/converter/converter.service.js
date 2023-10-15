@@ -1,4 +1,3 @@
-const { URL } = require("url");
 const logger = require("../../logger/Logger");
 const {
   extractProductFromWeblink,
@@ -9,7 +8,9 @@ const {
 const converterRepository = require("./converter.repository");
 const productService = require("../product/product.service");
 const config = require("../../config");
-const { SEARCH_PATH } = require("../../libs/constants");
+const { SEARCH_PATH, statusCodes } = require("../../libs/constants");
+const { parseUrl } = require("../../libs/helpers");
+const { ErrorResponse } = require("../../entities/response");
 
 class ConverterService {
   static getInstance() {
@@ -19,16 +20,20 @@ class ConverterService {
     return ConverterService.instance;
   }
 
+  /**
+   * @param {*} url 
+   * @returns the appropriate deeplink
+   */
   async createDeeplink(url) {
     const savedUrl = await converterRepository.getUrl({ weblink: url });
     if (savedUrl?.deeplink) return savedUrl.deeplink;
     let deeplink = null;
-    const parsedUrl = new URL(url);
+    const parsedUrl = parseUrl(url);
     const { pathname, searchParams, search } = parsedUrl;
     const splitPath = pathname.split("/");
     const product = extractProductFromWeblink(splitPath);
     if (product) {
-      await this.fetchProduct(product.id);
+      await this.doesProductExist(product.id);
       product.subPath = splitPath[1];
       deeplink = this.formDeeplink("Product", product.id, searchParams);
       await converterRepository.saveUrl({ weblink: url, deeplink });
@@ -44,16 +49,32 @@ class ConverterService {
     return deeplink;
   }
 
+  /**
+   * @param {*} id 
+   * @returns the product if it exists, else throws an error
+   */
+  async doesProductExist(id) {
+    const product = await productService.getProduct(id);
+    if (!product) {
+      throw new ErrorResponse({ error: "Could not find product. Please verify the contentId" }, statusCodes.NOT_FOUND);
+    }
+    return product;
+  }
+
+  /**
+   * @param {*} url 
+   * @returns the appropriate web url
+   */
   async createWeblink(url) {
     const savedUrl = await converterRepository.getUrl({ deeplink: url });
     if (savedUrl?.weblink) return savedUrl.weblink;
     let weblink = null;
-    const parsedUrl = new URL(url);
+    const parsedUrl = parseUrl(url);
     const { searchParams } = parsedUrl;
 
     const contentId = searchParams.get("ContentId");
     if (contentId) {
-      const product = await this.fetchProduct(contentId);
+      const product = await this.doesProductExist(contentId);
       weblink = this.formWeblink(product.subPath, `${product.name}-p-${product.productId}`, searchParams);
       await converterRepository.saveUrl({ weblink, deeplink: url });
     }
@@ -66,14 +87,6 @@ class ConverterService {
     }
     logger.log("info", { message: "weblink formed", data: weblink });
     return weblink;
-  }
-
-  async fetchProduct(contentId) {
-    const product = await productService.getProduct(contentId);
-    if (!product) {
-      throw new Error("Could not find product. Please verify the contentId");
-    }
-    return product;
   }
 
   formDeeplink(page, contentId, searchParams, search = null) {
